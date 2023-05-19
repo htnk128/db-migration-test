@@ -1,0 +1,29 @@
+version: '3'
+services:
+
+  test-sqldef-db:
+    container_name: test-sqldef-db
+    image: test-sqldef-db
+    build: ../mysql57
+    ports:
+      - "3306:3306"
+    volumes:
+      - ../mysql57/docker-entrypoint-initdb.d/:/docker-entrypoint-initdb.d
+
+  test-sqldef:
+    build: ./migrate
+    container_name: test-sqldef
+    command: --file /sql/schema.sql
+    environment:
+      WAIT_HOSTS: test-sqldef-db:3306
+      MYSQL_HOST: test-sqldef-db
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: test_db
+      MYSQL_USER: root
+      MYSQL_PASSWORD: password
+    volumes:
+      - ./migrate/sql:/sql
+    links:
+      - test-sqldef-db
+volumes:
+  test-sqldef-db-volume: {}

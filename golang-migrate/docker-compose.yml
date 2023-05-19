@@ -1,0 +1,30 @@
+version: '3'
+services:
+
+  test-golang-migrate-db:
+    container_name: test-golang-migrate-db
+    image: test-golang-migrate-db
+    build: ../mysql57
+    ports:
+      - "3306:3306"
+    volumes:
+      - ../mysql57/docker-entrypoint-initdb.d/:/docker-entrypoint-initdb.d
+
+  test-golang-migrate:
+    build: ./migrate
+    container_name: test-golang-migrate
+    command: up
+    environment:
+      WAIT_HOSTS: test-golang-migrate-db:3306
+      MIGRATIONS_DIR: /sql
+      MYSQL_HOST: test-golang-migrate-db
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: test_db
+      MYSQL_USER: root
+      MYSQL_PASSWORD: password
+    volumes:
+      - ./migrate/sql:/sql
+    links:
+      - test-golang-migrate-db
+volumes:
+  test-golang-migrate-db-volume: {}
