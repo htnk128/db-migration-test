@@ -1,0 +1,30 @@
+version: '3'
+services:
+
+  test-goose-db:
+    container_name: test-goose-db
+    image: test-goose-db
+    build: ../mysql57
+    ports:
+      - "3306:3306"
+    volumes:
+      - ../mysql57/docker-entrypoint-initdb.d/:/docker-entrypoint-initdb.d
+
+  test-goose:
+    build: ./migrate
+    container_name: test-goose
+    command: up
+    environment:
+      WAIT_HOSTS: test-goose-db:3306
+      MIGRATIONS_DIR: /sql
+      MYSQL_HOST: test-goose-db
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: test_db
+      MYSQL_USER: root
+      MYSQL_PASSWORD: password
+    volumes:
+      - ./migrate/sql:/sql
+    links:
+      - test-goose-db
+volumes:
+  test-goose-db-volume: {}

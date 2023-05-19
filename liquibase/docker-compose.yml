@@ -1,0 +1,24 @@
+version: '3'
+services:
+
+  test-liquibase-db:
+    container_name: test-liquibase-db
+    image: test-liquibase-db
+    build: ../mysql57
+    ports:
+      - "3306:3306"
+    volumes:
+      - ../mysql57/docker-entrypoint-initdb.d/:/docker-entrypoint-initdb.d
+
+  test-liquibase:
+    container_name: test-liquibase
+    image: liquibase/liquibase
+    command: --url='jdbc:mysql://test-liquibase-db:3306/test_db' --changeLogFile=changelog.xml --username=root --password=password update
+    volumes:
+      - ./migrate/config/changelog.xml:/liquibase/changelog.xml
+      - ./migrate/lib:/liquibase/lib
+      - ./migrate/sql:/liquibase/scripts
+    links:
+      - test-liquibase-db
+volumes:
+  test-liquibase-db-volume: {}
